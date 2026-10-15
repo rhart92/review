@@ -1,0 +1,27 @@
+/* Innermost Prism token scopes; diff rows supply their own backgrounds. */
+.token.comment, .token.prolog, .token.doctype, .token.cdata { color: #6e7781; }
+.token.punctuation { color: #57606a; }
+.token.keyword, .token.atrule, .token.rule, .token.important { color: #cf222e; }
+.token.string, .token.char, .token.attr-value, .token.regex, .token.url { color: #0a3069; }
+.token.number, .token.boolean, .token.constant, .token.symbol, .token.property, .token.attr-name { color: #0550ae; }
+.token.function, .token.function-variable, .token.class-name { color: #8250df; }
+.token.builtin, .token.tag, .token.selector { color: #116329; }
+.token.operator, .token.entity { color: #cf222e; }
+.token.variable { color: #24292f; }
+.token.deleted { color: #82071e; }
+.token.inserted { color: #116329; }
+.token.bold, .token.important { font-weight: 600; }
+.token.italic { font-style: italic; }
+
+@media (prefers-color-scheme: dark) {
+  .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #908caa; }
+  .token.punctuation { color: #908caa; }
+  .token.keyword, .token.atrule, .token.rule, .token.important, .token.operator, .token.entity { color: #c4a7e7; }
+  .token.string, .token.char, .token.attr-value, .token.regex, .token.url { color: #f6c177; }
+  .token.number, .token.boolean, .token.constant, .token.symbol, .token.tag { color: #eb6f92; }
+  .token.property, .token.attr-name, .token.builtin, .token.selector { color: #9ccfd8; }
+  .token.function, .token.function-variable, .token.class-name { color: #ebbcba; }
+  .token.variable { color: #e0def4; }
+  .token.deleted { color: #eb6f92; }
+  .token.inserted { color: #9ccfd8; }
+}

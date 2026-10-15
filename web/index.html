@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Local review</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="highlight.css">
+  <script src="vendor/prism.min.js" defer></script>
+  <script src="highlight.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="brand"><button id="toggle-sidebar" aria-controls="file-sidebar" aria-expanded="true" aria-label="Hide file sidebar" title="Hide file sidebar"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M6 3v10"/></svg></button>Local review <button id="choose-repo" title="Choose a local repository" disabled>Choose repository…</button><span id="branch"></span></div>
+    <div class="actions"><form id="pr-form"><label for="pr-number">PR #</label><input id="pr-number" type="number" min="1" step="1" placeholder="123" aria-label="PR number"><button type="submit">Review PR</button></form><button id="local">Local changes</button><a id="pr-link" hidden target="_blank" rel="noreferrer">Open PR</a><label><input id="live" type="checkbox" checked> Live</label><button id="refresh">Refresh all</button><button id="comments-button">Comments (0)</button><button id="clear-comments" title="Clear all comments and the open draft for this review" disabled>Clear comments</button><button id="copy" class="primary">Copy feedback</button></div>
+  </header>
+  <div class="review-summary">
+    <div id="diff-summary" aria-label="Visible diff statistics"><span id="summary-files">— files</span><span id="summary-additions" class="count-add">+0</span><span id="summary-deletions" class="count-delete">−0</span></div>
+    <div id="status" role="status">Connecting to repository…</div>
+  </div>
+  <div class="layout">
+    <aside id="file-sidebar"><div class="aside-title">CHANGED FILES <span id="file-count"></span></div><input id="filter" type="search" placeholder="Filter files…" aria-label="Filter files"><label class="test-toggle"><input id="hide-tests" type="checkbox"> Hide test files</label><nav id="files" aria-label="Changed files"></nav><div id="repo"></div></aside>
+    <div id="sidebar-resizer" role="separator" aria-label="Resize file sidebar" aria-orientation="vertical" aria-controls="file-sidebar" aria-valuemin="180" aria-valuemax="600" aria-valuenow="240" tabindex="0" title="Drag to resize sidebar; use arrow keys when focused"></div>
+    <main id="main"><div class="empty">Loading changes…</div></main>
+  </div>
+  <dialog id="comments-dialog"><div class="dialog-heading"><h2>Review comments</h2><button id="close-comments" aria-label="Close comments">Close</button></div><p>Saved in this browser, scoped to this repository and base. Anchors retain their original line and content; they do not move with edits.</p><div id="comments-list"></div></dialog>
+  <dialog id="clear-comments-dialog" aria-labelledby="clear-comments-title" aria-describedby="clear-comments-description">
+    <div class="dialog-heading"><h2 id="clear-comments-title">Clear all comments?</h2></div>
+    <p id="clear-comments-description"></p>
+    <p id="clear-comments-error" role="alert" hidden></p>
+    <form method="dialog" class="actions"><button value="cancel" autofocus>Cancel</button><button id="confirm-clear-comments" type="button" class="primary">Clear comments</button></form>
+  </dialog>
+  <dialog id="export-dialog"><div class="dialog-heading"><h2>Feedback</h2><button id="close-export">Close</button></div><p>Clipboard unavailable. Select and copy the text below.</p><textarea id="export-text" readonly aria-label="Feedback to copy"></textarea></dialog>
+  <dialog id="repo-dialog">
+    <div class="dialog-heading"><h2>Choose repository</h2><button id="close-repo" aria-label="Close repository picker">Close</button></div>
+    <p>Browse folders on the machine running review, or enter a directory path. Git checkouts and worktrees are supported.</p>
+    <form id="repo-browse-form" class="repo-path-row">
+      <label class="sr-only" for="repo-path">Folder path</label><input id="repo-path" type="text" placeholder="/path/to/repository or ~/work" spellcheck="false" required>
+      <button type="submit">Browse</button><button id="repo-parent" type="button">Up</button><button id="repo-home" type="button">Home</button>
+    </form>
+    <div id="repo-location"></div>
+    <div id="repo-browser-status" role="status"></div>
+    <div id="repo-folders" aria-label="Folders"></div>
+    <form id="repo-select-form" class="repo-select-row">
+      <label for="repo-base">Local base ref</label><input id="repo-base" value="main" type="text" spellcheck="false" required title="Use main, master, or another local base ref. PR comparisons use the PR's own base.">
+      <button id="repo-use" type="submit" class="primary" disabled>Use repository</button>
+    </form>
+    <div id="repo-hint"></div><div id="repo-error" role="alert"></div>
+  </dialog>
+</body>
+</html>
