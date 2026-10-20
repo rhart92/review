@@ -116,3 +116,8 @@ cargo run -- --repo /path/to/repo
 Assets are embedded at compile time; rebuild after changing `web/`. Prism 1.30.0 is vendored under its MIT license at `web/vendor/prism.LICENSE` (also served at `/vendor/prism.LICENSE`).
 
 Real-Git regression tests cover combined whole-review patches, canceled index edits, restored staged deletions, ignored additions, live base changes, unusual names, binary files, symlink/path safety, exact old/new file line totals, shallow/partial PR snapshots, changed-blob loading, linked worktrees without modifying the target index or refs, folder browsing, optional startup repositories, and independent repository/base selections.
+
+## License
+
+MIT licensed; see [LICENSE](LICENSE). Bundled Prism retains its
+[MIT license notice](web/vendor/prism.LICENSE).

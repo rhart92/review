@@ -3,6 +3,7 @@ name = "review"
 version = "0.1.0"
 edition = "2021"
 description = "A local, read-only Git review server"
+license = "MIT"
 
 [dependencies]
 axum = "0.8"
