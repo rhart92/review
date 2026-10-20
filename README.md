@@ -2,6 +2,38 @@
 
 A read-only, live Git diff reviewer. One Rust binary embeds the web UI; no Node runtime, frontend build, or CDN. Git is required. Pushed GitHub PR reviews additionally require the authenticated GitHub CLI (`gh`).
 
+## Download
+
+Download a prebuilt archive from [the latest release](https://github.com/rhart92/review/releases/latest):
+
+| Platform | Archive suffix |
+| --- | --- |
+| macOS Apple Silicon | `macos-arm64.tar.gz` |
+| macOS Intel | `macos-x86_64.tar.gz` |
+| Linux x86-64 (glibc 2.35+) | `linux-x86_64.tar.gz` |
+| Linux ARM64 (glibc 2.39+) | `linux-arm64.tar.gz` |
+
+Extract the archive, then run the included binary:
+
+```sh
+tar -xzf review-v0.1.0-macos-arm64.tar.gz
+cd review-v0.1.0-macos-arm64
+./review --repo /path/to/repo
+```
+
+Substitute your platform's archive name. No Rust installation is needed. Git must
+be installed; pushed PR reviews also need authenticated `gh`. Downloads require
+repository access while this repository is private.
+
+Each release includes `SHA256SUMS`. From the directory containing the downloaded
+archive and checksum file, verify it with
+`shasum -a 256 --ignore-missing -c SHA256SUMS` on macOS or
+`sha256sum --ignore-missing -c SHA256SUMS` on Linux.
+
+Binaries are unsigned and macOS builds are not notarized. macOS may block the
+first launch; after verifying the download, use **System Settings → Privacy &
+Security → Open Anyway** if prompted. Keep the server private; see **Boundaries**.
+
 ## Run
 
 ```sh
@@ -116,6 +148,13 @@ cargo run -- --repo /path/to/repo
 Assets are embedded at compile time; rebuild after changing `web/`. Prism 1.30.0 is vendored under its MIT license at `web/vendor/prism.LICENSE` (also served at `/vendor/prism.LICENSE`).
 
 Real-Git regression tests cover combined whole-review patches, canceled index edits, restored staged deletions, ignored additions, live base changes, unusual names, binary files, symlink/path safety, exact old/new file line totals, shallow/partial PR snapshots, changed-blob loading, linked worktrees without modifying the target index or refs, folder browsing, optional startup repositories, and independent repository/base selections.
+
+### Publishing a release
+
+Update the package version in `Cargo.toml` and `Cargo.lock`, commit it, then push
+a matching `v<version>` tag. `.github/workflows/release.yml` tests, builds, and
+smoke-checks all four native binaries before publishing the archives and SHA-256
+checksums to a GitHub release. The tag must match the package version.
 
 ## License
 

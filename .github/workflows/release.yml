@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-arm64
+            runner: macos-15
+          - platform: macos-x86_64
+            runner: macos-15-intel
+          - platform: linux-x86_64
+            runner: ubuntu-22.04
+          - platform: linux-arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select stable Rust
+        run: rustup update stable --no-self-update && rustup default stable
+      - name: Check release version
+        shell: bash
+        run: |
+          version=$(cargo read-manifest | python3 -c 'import json,sys; print(json.load(sys.stdin)["version"])')
+          test "$GITHUB_REF_NAME" = "v$version"
+      - name: Test
+        run: cargo test --locked
+      - name: Build
+        run: cargo build --release --locked
+      - name: Smoke-check binary and HTTP API
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./target/release/review --version
+          ./target/release/review --repo "$PWD" --base HEAD --bind 127.0.0.1:4173 &
+          server=$!
+          trap 'kill "$server"; wait "$server" || true' EXIT
+          curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 1 http://127.0.0.1:4173/ -o /tmp/review-index.html
+          curl --fail --silent --show-error http://127.0.0.1:4173/api/review | python3 -c 'import json,sys; review=json.load(sys.stdin); assert review["source"] == "local"; assert isinstance(review["files"], list); print("Local review API passed")'
+      - name: Package
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set -euo pipefail
+          package="review-$GITHUB_REF_NAME-$PLATFORM"
+          mkdir -p "dist/$package/web/vendor"
+          cp target/release/review LICENSE README.md "dist/$package/"
+          cp web/vendor/prism.LICENSE "dist/$package/web/vendor/"
+          tar -czf "$package.tar.gz" -C dist "$package"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: review-${{ matrix.platform }}
+          path: review-*.tar.gz
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: review-*
+          merge-multiple: true
+          path: dist
+      - name: Publish release and checksums
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum review-*.tar.gz > SHA256SUMS
+          gh release create "$GITHUB_REF_NAME" review-*.tar.gz SHA256SUMS --verify-tag --draft --title "Review $GITHUB_REF_NAME" --notes "Prebuilt macOS and Linux binaries for ARM64 and x86-64. Download the archive for your platform, extract it, and run the included review binary. Git is required; pushed PR reviews also require authenticated gh. See the bundled README for installation and security boundaries. Binaries are unsigned. Linux x86-64 requires glibc 2.35+; Linux ARM64 requires glibc 2.39+."
+          gh release edit "$GITHUB_REF_NAME" --draft=false --latest
